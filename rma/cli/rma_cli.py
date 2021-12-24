@@ -8,7 +8,8 @@ import sys
 from argparse import ArgumentParser, HelpFormatter
 from rma.application import RmaApplication
 
-logging.basicConfig(level=logging.INFO)
+FORMAT = '[%(asctime)s]|-%(levelname)s |-%(name)s|-%(message)s'
+logging.basicConfig(level=logging.INFO, format=FORMAT)
 
 VALID_TYPES = ("string", "hash", "list", "set", "zset")
 VALID_MODES = ('all', 'scanner', 'ram', 'global')
