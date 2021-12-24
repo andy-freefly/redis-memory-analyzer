@@ -16,6 +16,12 @@ def dict_build(indict, pre=None):
 
 
 def map_part_to_glob(index, part):
+    """
+    convert number to *.
+    :param index:
+    :param part:
+    :return str:
+    """
     if index == 0:
         return part
 
@@ -32,13 +38,24 @@ class SimpleSplitter(object):
         self.separator = separator
 
     def split(self, data):
+        """
+        map redis key to pattern.
+        :param data: [ 'a:b:c:0123' ]
+        :return set: [ 'a:b:c:*' ]
+        """
         pass1 = map(lambda x: list(map_part_to_glob(i, y) for i, y in enumerate(x.split(self.separator))), data)
         pass2 = self.fold_to_tree(pass1)
         return self.unfold_to_list(pass2, self.separator)
 
     def fold_to_tree(self, pass1):
+        """
+        fold pattern list to dict pattern.
+        :param pass1:
+        :return dict: { 4: {'a': {'b': {'c': {'*': {}}}}} }
+        """
         tree = {}
         for item in pass1:
+            # item example: [ 'a', 'b', 'c', '*' ]
             t_len = len(item)
             if t_len not in tree:
                 tree[t_len] = {}
@@ -81,6 +98,12 @@ class SimpleSplitter(object):
 
     @staticmethod
     def unfold_to_list(tree, separator):
+        """
+        unfold dict pattern to list pattern.
+        :param tree: { 4: {'a': {'b': {'c': {'*': {}}}}} }
+        :param separator:
+        :return set: [ 'a:b:c*' ]
+        """
         res = set()
 
         for sub_tree in tree.values():

@@ -178,6 +178,11 @@ class RmaApplication(object):
         return {"stat": ret}
 
     def get_pattern_aggregated_data(self, data):
+        """
+        map redis key data to pattern.
+        :param data: [{'name': 'a:b:c:0123', 'type': 1, 'encoding': 4, 'ttl': -1}]
+        :return dict: { 'a:b:c:*': [ 'a:b:c:0123' ] }
+        """
         split_patterns = self.splitter.split((ptransform(obj["name"]) for obj in data))
         self.logger.debug(split_patterns)
 
