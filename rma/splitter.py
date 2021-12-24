@@ -18,8 +18,8 @@ def dict_build(indict, pre=None):
 def map_part_to_glob(index, part):
     """
     convert number to *.
-    :param index:
-    :param part:
+    :param index: part index in redis key
+    :param part: part of redis key
     :return str:
     """
     if index == 0:
