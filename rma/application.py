@@ -12,6 +12,7 @@ from rma.helpers import floored_percentage
 
 from collections import defaultdict
 from redis.exceptions import ResponseError
+from tqdm import tqdm
 
 def ptransform(nm):
     if nm.startswith('celery-task-meta'):
@@ -129,12 +130,12 @@ class RmaApplication(object):
                 keys[v["type"]].append(v)
 
             if self.isTextFormat:
-                print("\r\nAggregating keys by pattern and type")
+                self.logger.info("Aggregating keys by pattern and type")
 
             keys = {k: self.get_pattern_aggregated_data(v) for k, v in keys.items()}
 
             if self.isTextFormat:
-                print("\r\nApply rules")
+                self.logger.info("Apply rules")
 
             if self.behaviour == 'global' or is_all:
                 str_res.append(self.do_globals())
@@ -156,10 +157,11 @@ class RmaApplication(object):
         keys = []
         total = min(r.dbsize(), self.limit)
         for key, aggregate_patterns in res.items():
-            self.logger.debug("Processing type %s" % type_id_to_redis_type(key))
             r_type = type_id_to_redis_type(key)
+            self.logger.info("do_scanner,%s,%d", r_type, len(aggregate_patterns))
 
             for k, v in aggregate_patterns.items():
+                self.logger.info("do_scanner item,%s,%s,%d", r_type, k, len(v))
                 keys.append([k, len(v), r_type, floored_percentage(len(v) / total, 2)])
                 keys.sort(key=lambda x: x[1], reverse=True)
 
@@ -169,11 +171,12 @@ class RmaApplication(object):
         ret = {}
 
         for key, aggregate_patterns in res.items():
-            self.logger.debug("Processing type %s" % type_id_to_redis_type(key))
             if key in self.types_rules and key in self.types:
                 redis_type = type_id_to_redis_type(key)
+                self.logger.info("do_ram,%s,%d", redis_type, len(aggregate_patterns))
                 for rule in self.types_rules[key]:
                     total_keys = sum(len(values) for key, values in aggregate_patterns.items())
+                    self.logger.info("do_ram item,%s,%d", redis_type, total_keys)
                     ret[redis_type] = rule.analyze(keys=aggregate_patterns, total=total_keys)
 
         return {"stat": ret}
@@ -184,11 +187,17 @@ class RmaApplication(object):
         :param data: [{'name': 'a:b:c:0123', 'type': 1, 'encoding': 4, 'ttl': -1}]
         :return dict: { 'a:b:c:*': [ 'a:b:c:0123' ] }
         """
+        redis_type = type_id_to_redis_type(data[0]['type'])
+        self.logger.info("get_pattern_aggregated_data,%s,%d", redis_type, len(data))
         split_patterns = self.splitter.split((ptransform(obj["name"]) for obj in data))
-        self.logger.debug(split_patterns)
+        self.logger.info("split_patterns,%s,%d", redis_type, len(split_patterns))
 
         aggregate_patterns = {item: [] for item in split_patterns}
-        for pattern in split_patterns:
-            aggregate_patterns[pattern] = list(filter(lambda obj: fnmatch.fnmatch(ptransform(obj["name"]), pattern), data))
+
+        with tqdm(total=len(split_patterns), desc="fnmatch {0}".format(redis_type),
+                  miniters=1000) as progress:
+            for pattern in split_patterns:
+                aggregate_patterns[pattern] = list(filter(lambda obj: fnmatch.fnmatch(ptransform(obj["name"]), pattern), data))
+                progress.update()
 
         return aggregate_patterns

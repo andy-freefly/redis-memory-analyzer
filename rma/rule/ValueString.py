@@ -70,7 +70,7 @@ class ValueString(object):
         }
 
         progress = tqdm(total=total,
-                        mininterval=1,
+                        mininterval=0.1,
                         desc="Processing String patterns",
                         leave=False)
 
