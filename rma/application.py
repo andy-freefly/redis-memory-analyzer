@@ -130,7 +130,7 @@ class RmaApplication(object):
                 keys[v["type"]].append(v)
 
             if self.isTextFormat:
-                self.logger.info("Aggregating keys by pattern and type")
+                self.logger.info("Aggregating keys by pattern and type,%d", self.redis.dbsize())
 
             keys = {k: self.get_pattern_aggregated_data(v) for k, v in keys.items()}
 
@@ -195,7 +195,7 @@ class RmaApplication(object):
         aggregate_patterns = {item: [] for item in split_patterns}
 
         with tqdm(total=len(split_patterns), desc="fnmatch {0}".format(redis_type),
-                  miniters=1000) as progress:
+                  mininterval=60, maxinterval=60) as progress:
             for pattern in split_patterns:
                 aggregate_patterns[pattern] = list(filter(lambda obj: fnmatch.fnmatch(ptransform(obj["name"]), pattern), data))
                 progress.update()
