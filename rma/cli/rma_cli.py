@@ -70,6 +70,7 @@ def main():
                         help="Specify application working mode. Allowed values are " + ', '.join(VALID_MODES))
     parser.add_argument("-t", "--type",
                         dest="types",
+                        # default=["string"],
                         action="append",
                         help="""Data types to include. Possible values are string, hash, list, set.
                               Multiple types can be provided. If not specified, all data types will be returned.
