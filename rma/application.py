@@ -159,10 +159,10 @@ class RmaApplication(object):
         total = min(r.dbsize(), self.limit)
         for key, aggregate_patterns in res.items():
             r_type = type_id_to_redis_type(key)
-            self.logger.info("do_scanner,%s,%d", r_type, len(aggregate_patterns))
+            self.logger.debug("do_scanner,%s,%d", r_type, len(aggregate_patterns))
 
             for k, v in aggregate_patterns.items():
-                self.logger.info("do_scanner item,%s,%s,%d", r_type, k, len(v))
+                self.logger.debug("do_scanner item,%s,%s,%d", r_type, k, len(v))
                 keys.append([k, len(v), r_type, floored_percentage(len(v) / total, 2)])
                 keys.sort(key=lambda x: x[1], reverse=True)
 
@@ -177,7 +177,7 @@ class RmaApplication(object):
                 self.logger.info("do_ram,%s,%d", redis_type, len(aggregate_patterns))
                 for rule in self.types_rules[key]:
                     total_keys = sum(len(values) for key, values in aggregate_patterns.items())
-                    self.logger.info("do_ram item,%s,%d", redis_type, total_keys)
+                    self.logger.info("do_ram item,%s,%s,%d", redis_type, type(rule).__name__, total_keys)
                     ret[redis_type] = rule.analyze(keys=aggregate_patterns, total=total_keys)
 
         return {"stat": ret}
