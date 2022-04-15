@@ -1,3 +1,4 @@
+import re
 import sys
 import fnmatch
 import logging
@@ -189,7 +190,8 @@ class RmaApplication(object):
         """
         redis_type = type_id_to_redis_type(data[0]['type'])
         self.logger.info("get_pattern_aggregated_data,%s,%d", redis_type, len(data))
-        split_patterns = self.splitter.split((ptransform(obj["name"]) for obj in data))
+        pattern = re.compile(r':US:[^:]+')
+        split_patterns = self.splitter.split((ptransform(re.sub(pattern, ':US:1', obj["name"])) for obj in data))
         self.logger.info("split_patterns,%s,%d", redis_type, len(split_patterns))
 
         aggregate_patterns = {item: [] for item in split_patterns}
