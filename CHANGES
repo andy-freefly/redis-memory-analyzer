@@ -1,5 +1,16 @@
 ChangeLog for RMA
 --------------------
+- 0.2.1-1
+    * Puneet Gupta <pgupta25111997@gmail.com>:  Calculate Idle time for all 
+      key types and display min/max/mean Idle time in Key statistics tables
+    * javalover123 <javalover123@foxmail.com>: 
+        Add default example type
+        log: change no such key log level from warn to debug
+        log: Add progress log, when has million keys will cost many hours
+        performance: when have million keys and 500k pattern, it will cost many days
+- 0.2.1
+    * RMA now supports -x (--separator) argument to specify namespace separator. Default is ':'.
+
 - 0.2.0
     * Calculate TTL feature for all key types and display min/max/mean TTL in Key summary tables.
     * Replace invalid UTF-8 characters in redis key names when scanning keyspace.
