@@ -71,7 +71,7 @@ class ValueString(object):
         }
 
         progress = tqdm(total=total,
-                        mininterval=1,
+                        mininterval=0.1,
                         desc="Processing String patterns",
                         leave=False)
 
@@ -96,7 +96,7 @@ class ValueString(object):
                 except RedisError as e:
                     # This code works in real time so key me be deleted and this code fail
                     error_string = repr(e)
-                    self.logger.warning(error_string)
+                    self.logger.debug(error_string + "," + key_info['name'])
                     if 'DEBUG' in error_string:
                         use_debug_command = False
 

@@ -8,7 +8,8 @@ import sys
 from argparse import ArgumentParser, HelpFormatter
 from rma.application import RmaApplication
 
-logging.basicConfig(level=logging.INFO)
+FORMAT = '[%(asctime)s]|-%(levelname)s |-%(name)s|-%(message)s'
+logging.basicConfig(level=logging.INFO, format=FORMAT)
 
 VALID_TYPES = ("string", "hash", "list", "set", "zset")
 VALID_MODES = ('all', 'scanner', 'ram', 'global')
@@ -69,6 +70,7 @@ def main():
                         help="Specify application working mode. Allowed values are " + ', '.join(VALID_MODES))
     parser.add_argument("-t", "--type",
                         dest="types",
+                        # default=["string"],
                         action="append",
                         help="""Data types to include. Possible values are string, hash, list, set.
                               Multiple types can be provided. If not specified, all data types will be returned.

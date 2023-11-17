@@ -116,7 +116,7 @@ class Hash(object):
         }
 
         progress = tqdm(total=total,
-                        mininterval=1,
+                        mininterval=0.1,
                         desc="Processing Hash patterns",
                         leave=False)
 
